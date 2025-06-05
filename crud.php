@@ -37,7 +37,7 @@
                         </li>
                         <li class="nav-item">
                             <a href="logout.php" class="nav-link px-0 align-middle">
-                                <span class="ms-1 d-none d-sm-inline">LogOut</span>
+                                <i class="bi bi-box-arrow-right fs-4"></i> <span class="ms-1 d-none d-sm-inline">LogOut</span>
                             </a>
                         </li>
                     </ul>

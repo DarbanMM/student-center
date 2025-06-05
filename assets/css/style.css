@@ -1821,4 +1821,20 @@ section {
   #footer .credits {
     padding-top: 4px;
   }
+
+  /* Untuk membuat kolom sidebar menjadi sticky */
+.sidebar-sticky {
+  position: -webkit-sticky; /* Untuk kompatibilitas dengan Safari */
+  position: sticky;
+  top: 0; /* Menempel di bagian atas viewport saat digulir */
+  height: 100vh; /* Membuat tinggi sidebar sama dengan tinggi viewport */
+  /* Lebar sidebar akan tetap diatur oleh kelas Bootstrap .col-md-3, .col-xl-2 */
+}
+
+/* Untuk memastikan konten di dalam sidebar bisa digulir jika lebih panjang dari tinggi layar */
+.sidebar-sticky > .d-flex.flex-column { /* Menargetkan div anak langsung dengan kelas .d-flex */
+  max-height: 100vh; /* Batasi tinggi maksimum konten sidebar */
+  overflow-y: auto;  /* Tambahkan scroll vertikal jika kontennya melebihi tinggi sidebar */
+  /* Padding dan style lain dari .d-flex.flex-column akan tetap berlaku */
+}
 }
