@@ -1,6 +1,29 @@
 <?php
     session_start(); // WAJIB: Mulai session di baris paling atas untuk menangani notifikasi
     include "koneksi.php"; // Menggunakan include dari kode lama Anda
+
+    // --- PENAMBAHAN LOGIKA PENCARIAN ---
+    // Mengambil kata kunci pencarian dari URL (via GET)
+    $search_query = isset($_GET['search_query']) ? $_GET['search_query'] : '';
+
+    // Membangun query SQL dasar
+    $sql = "SELECT * FROM login";
+
+    // Jika ada kata kunci pencarian, tambahkan kondisi WHERE
+    if (!empty($search_query)) {
+        // Amankan input pencarian untuk mencegah SQL Injection
+        $sanitized_query = mysqli_real_escape_string($conn, $search_query);
+        // Tambahkan klausa WHERE untuk mencari di beberapa kolom
+        $sql .= " WHERE username LIKE '%$sanitized_query%' OR nama LIKE '%$sanitized_query%' OR level LIKE '%$sanitized_query%'";
+    }
+
+    $sql .= " ORDER BY nama ASC"; // Mengurutkan hasil berdasarkan nama
+
+    $result = $conn->query($sql);
+
+    if (!$result) {
+        die("Invalid query: " . $conn->error);
+    }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -26,6 +49,12 @@
         <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
 
         <link href="assets/css/style.css" rel="stylesheet"> </head>
+
+        <style>
+            .table-actions {
+                width: 250px;
+            }
+        </style>
     <body>
         <div class="container-fluid">
             <div class="row flex-nowrap">
@@ -98,41 +127,48 @@
                         </div>
                     </div>
 
-                    <table class="table table-striped table-hover table-bordered">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Username</th>
-                                <th>Nama</th>
-                                <th>Level</th>
-                                <th class="table-actions">Aksi</th> </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                                $sql = "SELECT * FROM login";
-                                $result = $conn->query($sql);
-                                if ($result->num_rows > 0) {
-                                    while ($row = $result->fetch_assoc()) {
-                                        echo "<tr>";
-                                        echo "<td>" . htmlspecialchars($row["username"]) . "</td>";
-                                        echo "<td>" . htmlspecialchars($row["nama"]) . "</td>";
-                                        echo "<td>" . htmlspecialchars($row["level"]) . "</td>";
-                                        // --- MODIFIKASI PADA BAGIAN AKSI ---
-                                        echo "<td>";
-                                        // Tombol Lihat Password
-                                        echo "<button type='button' class='btn btn-info btn-sm me-1 view-password-btn' data-bs-toggle='modal' data-bs-target='#viewPasswordModal' data-username='" . htmlspecialchars($row['username']) . "'>Lihat Password</button>";
-                                        // Tombol Edit
-                                        echo "<a href='editForm.php?username=".urlencode($row['username'])."' class='btn btn-sm btn-warning me-1'><i class='bi bi-pencil'></i> Edit</a>";
-                                        // Tombol Hapus
-                                        echo "<a href='hapusUser.php?username=".urlencode($row['username'])."' class='btn btn-sm btn-danger' onclick='return confirm(\"Yakin hapus pengguna " . htmlspecialchars($row["username"]) . "?\")'><i class='bi bi-trash'></i> Hapus</a>";
-                                        echo "</td>";
-                                        echo "</tr>";
+                    <div class="mb-3">
+                        <form action="crudUser.php" method="GET" class="d-flex">
+                            <input type="text" name="search_query" class="form-control me-2" placeholder="Cari Username, Nama, atau Level..." value="<?php echo htmlspecialchars($search_query); ?>">
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Cari</button>
+                            <?php if (!empty($search_query)): ?>
+                                <a href="crudUser.php" class="btn btn-outline-secondary ms-2">Reset</a>
+                            <?php endif; ?>
+                        </form>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover table-bordered">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Nama</th>
+                                    <th>Level</th>
+                                    <th class="table-actions">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                    if ($result->num_rows > 0) {
+                                        while ($row = $result->fetch_assoc()) {
+                                            echo "<tr>";
+                                            echo "<td>" . htmlspecialchars($row["username"]) . "</td>";
+                                            echo "<td>" . htmlspecialchars($row["nama"]) . "</td>";
+                                            echo "<td>" . htmlspecialchars($row["level"]) . "</td>";
+                                            echo "<td>";
+                                            echo "<button type='button' class='btn btn-info btn-sm me-1 view-password-btn' data-bs-toggle='modal' data-bs-target='#viewPasswordModal' data-username='" . htmlspecialchars($row['username']) . "'>Lihat Password</button>";
+                                            echo "<a href='editForm.php?username=".urlencode($row['username'])."' class='btn btn-sm btn-warning me-1'><i class='bi bi-pencil'></i> Edit</a>";
+                                            echo "<a href='hapusUser.php?username=".urlencode($row['username'])."' class='btn btn-sm btn-danger' onclick='return confirm(\"Yakin hapus pengguna " . htmlspecialchars($row["username"]) . "?\")'><i class='bi bi-trash'></i> Hapus</a>";
+                                            echo "</td>";
+                                            echo "</tr>";
+                                        }
+                                    } else {
+                                        echo "<tr><td colspan='4' class='text-center'>Tidak ada data pengguna yang cocok.</td></tr>";
                                     }
-                                } else {
-                                    echo "<tr><td colspan='4' class='text-center'>Tidak ada data pengguna.</td></tr>";
-                                }
-                            ?>
-                        </tbody>
-                    </table>
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

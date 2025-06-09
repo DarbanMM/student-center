@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 09, 2025 at 11:25 AM
+-- Generation Time: Jun 09, 2025 at 12:31 PM
 -- Server version: 11.5.2-MariaDB
 -- PHP Version: 8.2.12
 
@@ -39,6 +39,19 @@ CREATE TABLE `login` (
 --
 
 INSERT INTO `login` (`username`, `password`, `nama`, `level`) VALUES
+('21106050067', '123456', 'MUHAMMAD ZAYYAN MUBAROK', 'mahasiswa'),
+('22106050002', '123456', 'KIKI PUSPITA SARI', 'mahasiswa'),
+('22106050014', '123456', 'SRI HARMONIS', 'mahasiswa'),
+('22106050018', '123456', 'CHASNA LAZUWARDI NAFIS', 'mahasiswa'),
+('22106050040', '123456', 'NAUFAL MAHARDHIKO YAZIDU ROZAK', 'mahasiswa'),
+('22106050057', '123456', 'YASINTA HARFAHRA INNA DEWI', 'mahasiswa'),
+('22106050064', '123456', 'FAIQAH NADLIFATUL MASUDIYAH', 'mahasiswa'),
+('22106050070', '123456', 'MUTIARA HASIBUAN', 'mahasiswa'),
+('22106050074', '123456', 'DIAN NOVENDRIA MUTIARA SYAHARA', 'mahasiswa'),
+('22106050075', '123456', 'MUHAMMAD SURYA SYAHPUTRA', 'mahasiswa'),
+('22106050076', '123456', 'ARIF RAHMAN HAKIM PASARIBU', 'mahasiswa'),
+('22106050082', '123456', 'MUHAMMAD FAKHRI AR ROUF', 'mahasiswa'),
+('22106050088', '123456', 'FADHLY EL HALIM CHANIAGO', 'mahasiswa'),
 ('admin', 'admin', 'admin', 'admin'),
 ('akrimna', 'akrimna', 'AKRIMNA FAHMA', 'admin'),
 ('darban', 'darban', 'DARBAN MAHA MURSYIDI', 'admin'),
