@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'koneksi.php'; // Pastikan file koneksi.php Anda benar
+include 'koneksi.php';
 
 if (isset($_POST['import_csv'])) {
     if (isset($_FILES['csv_file']) && $_FILES['csv_file']['error'] == UPLOAD_ERR_OK) {
@@ -11,61 +11,66 @@ if (isset($_POST['import_csv'])) {
         if ($file_extension == 'csv') {
             if (($handle = fopen($file_tmp_path, "r")) !== FALSE) {
                 $imported_count = 0;
+                $skipped_count = 0;
+                $skipped_usernames = [];
                 $error_count = 0;
                 $error_details = [];
-                $row_number = 0; // Inisialisasi nomor baris
+                $row_number = 0;
+
+                // Lewati baris header
+                fgetcsv($handle); 
 
                 while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-                    $row_number++; // Naikkan nomor baris untuk setiap baris yang dibaca
-
-                    // Lewati baris pertama (header)
-                    if ($row_number == 1) {
-                        continue; // Lanjut ke iterasi berikutnya (baris data)
-                    }
-
-                    // Asumsi format CSV setelah header: username, password, nama, level
+                    $row_number++;
+                    
                     if (count($data) == 4) {
                         $username = mysqli_real_escape_string($conn, $data[0]);
-                        $password = mysqli_real_escape_string($conn, $data[1]); // PERHATIAN: Idealnya password di-hash
+                        $password = mysqli_real_escape_string($conn, $data[1]);
                         $nama = mysqli_real_escape_string($conn, $data[2]);
                         $level = mysqli_real_escape_string($conn, $data[3]);
 
                         if (!empty($username) && !empty($password) && !empty($nama) && !empty($level)) {
-                            $sql = "INSERT INTO login(username, password, nama, level) VALUES('$username', '$password', '$nama', '$level')";
-                            if (mysqli_query($conn, $sql)) {
+                            // Cek apakah username sudah ada
+                            $check_sql = "SELECT username FROM login WHERE username = '$username'";
+                            $check_result = mysqli_query($conn, $check_sql);
+
+                            if (mysqli_num_rows($check_result) > 0) {
+                                // Jika username sudah ada, lewati dan catat
+                                $skipped_count++;
+                                $skipped_usernames[] = $username;
+                                continue; // Lanjut ke baris berikutnya
+                            }
+
+                            // Jika tidak duplikat, lakukan INSERT
+                            $insert_sql = "INSERT INTO login(username, password, nama, level) VALUES('$username', '$password', '$nama', '$level')";
+                            if (mysqli_query($conn, $insert_sql)) {
                                 $imported_count++;
                             } else {
                                 $error_count++;
-                                $error_details[] = "Baris $row_number (data): Gagal insert - " . mysqli_error($conn);
+                                $error_details[] = "Baris data ke-$row_number: Gagal insert - " . mysqli_error($conn);
                             }
                         } else {
                             $error_count++;
-                            $error_details[] = "Baris $row_number (data): Data tidak lengkap.";
+                            $error_details[] = "Baris data ke-$row_number: Data tidak lengkap.";
                         }
                     } else {
                         $error_count++;
-                        $error_details[] = "Baris $row_number (data): Jumlah kolom tidak sesuai (harap 4 kolom).";
+                        $error_details[] = "Baris data ke-$row_number: Jumlah kolom tidak sesuai.";
                     }
                 }
                 fclose($handle);
 
-                // Logika untuk pesan feedback (sama seperti sebelumnya)
-                if ($imported_count > 0 && $error_count == 0) {
-                    $_SESSION['csv_import_message'] = "$imported_count pengguna berhasil diimpor.";
-                    $_SESSION['csv_import_message_type'] = 'success';
-                } elseif ($imported_count > 0 && $error_count > 0) {
-                    $_SESSION['csv_import_message'] = "$imported_count pengguna berhasil diimpor, namun $error_count baris data gagal. Detail: " . implode("; ", $error_details);
-                    $_SESSION['csv_import_message_type'] = 'warning';
-                } elseif ($error_count > 0) {
-                    $_SESSION['csv_import_message'] = "Gagal mengimpor pengguna. $error_count baris data bermasalah. Detail: " . implode("; ", $error_details);
-                    $_SESSION['csv_import_message_type'] = 'error';
-                } elseif ($imported_count == 0 && $row_number <=1 ) { // Jika hanya ada header atau file kosong
-                     $_SESSION['csv_import_message'] = "Tidak ada data pengguna yang ditemukan di file CSV (setelah melewati header).";
-                     $_SESSION['csv_import_message_type'] = 'info';
-                } else {
-                     $_SESSION['csv_import_message'] = "Tidak ada data pengguna yang berhasil diimpor.";
-                     $_SESSION['csv_import_message_type'] = 'info';
+                // Buat pesan notifikasi yang komprehensif
+                $message = "$imported_count pengguna berhasil diimpor. ";
+                if ($skipped_count > 0) {
+                    $message .= "$skipped_count pengguna dilewati karena duplikat (username sudah ada): " . htmlspecialchars(implode(', ', $skipped_usernames)) . ". ";
                 }
+                if ($error_count > 0) {
+                    $message .= "$error_count baris data lainnya gagal diproses.";
+                }
+                
+                $_SESSION['csv_import_message'] = $message;
+                $_SESSION['csv_import_message_type'] = ($error_count > 0 || $skipped_count > 0) ? 'warning' : 'success';
 
             } else {
                 $_SESSION['csv_import_message'] = "Gagal membuka file CSV.";
@@ -76,12 +81,9 @@ if (isset($_POST['import_csv'])) {
             $_SESSION['csv_import_message_type'] = 'error';
         }
     } else {
-        $_SESSION['csv_import_message'] = "Terjadi kesalahan saat mengunggah file atau tidak ada file yang diunggah. Error code: " . (isset($_FILES['csv_file']['error']) ? $_FILES['csv_file']['error'] : 'N/A');
+        $_SESSION['csv_import_message'] = "Terjadi kesalahan saat mengunggah file.";
         $_SESSION['csv_import_message_type'] = 'error';
     }
-} else {
-    $_SESSION['csv_import_message'] = "Aksi tidak valid.";
-    $_SESSION['csv_import_message_type'] = 'error';
 }
 
 header("Location: crudUser.php");

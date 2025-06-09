@@ -21,6 +21,8 @@ body{
   background: white;
   border-radius: 10px;
   box-shadow: 10px 10px 15px rgba(0,0,0,0.05);
+  max-height: 90vh; /* Batasi tinggi maksimum form menjadi 90% dari tinggi layar */
+  overflow-y: auto; /* Tambahkan scrollbar vertikal jika kontennya lebih tinggi */
 }
 .center h1{
   text-align: center;

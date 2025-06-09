@@ -2,14 +2,25 @@
 // Koneksi ke database
 include 'koneksi.php';
 
-// Mengambil filter tanggal dari form (jika ada)
-$filter_tanggal = isset($_POST['filter_tanggal']) ? $_POST['filter_tanggal'] : '';
+// Mengambil filter tanggal dan ruang dari form
+$filter_tanggal = isset($_POST['filter_tanggal']) ? mysqli_real_escape_string($conn, $_POST['filter_tanggal']) : '';
+$filter_ruang = isset($_POST['filter_ruang']) ? mysqli_real_escape_string($conn, $_POST['filter_ruang']) : '';
 
-// Query untuk mengambil data dari tabel reservasi
+// Membangun query SQL dengan kondisi filter
 $sql = "SELECT * FROM reservasi";
+$conditions = [];
+
 if ($filter_tanggal) {
-    $sql .= " WHERE tanggal = '$filter_tanggal'";
+    $conditions[] = "tanggal = '$filter_tanggal'";
 }
+if ($filter_ruang) {
+    $conditions[] = "ruang = '$filter_ruang'";
+}
+
+if (count($conditions) > 0) {
+    $sql .= " WHERE " . implode(' AND ', $conditions);
+}
+
 $sql .= " ORDER BY tanggal DESC, waktu ASC";
 
 // Eksekusi query
@@ -18,7 +29,7 @@ $result = $conn->query($sql);
 if (!$result) {
     die("Invalid query: " . $conn->error);
 }
-?>  
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -205,55 +216,77 @@ if (!$result) {
 
 <!-- ======= Tabel Reservasi ======= -->
 <section id="reservasi" class="reservasi">
-      <div class="container" data-aos="fade-up">
-        <div class="section-title">
-          <h2>Data Reservasi</h2>
-        </div>
+  <div class="container" data-aos="fade-up">
+    <div class="section-title">
+      <h2>Data Reservasi</h2>
+    </div>
 
     <!-- Form untuk filter berdasarkan tanggal -->
-    <form method="POST" action="">
-        <label for="filter_tanggal">Filter Tanggal:</label>
-        <input type="date" id="filter_tanggal" name="filter_tanggal" value="<?php echo $filter_tanggal; ?>">
-        <button type="submit">Terapkan</button>
+    <form action="" method="POST" class="mb-3">
+      <div class="row g-2 align-items-center">
+          <div class="col-md-3">
+              <label for="filter_tanggal" class="form-label">Filter Tanggal</label>
+              <input type="date" name="filter_tanggal" id="filter_tanggal" class="form-control" value="<?php echo htmlspecialchars($filter_tanggal); ?>">
+          </div>
+          <div class="col-md-3">
+              <label for="filter_ruang" class="form-label">Filter Ruang</label>
+              <select name="filter_ruang" id="filter_ruang" class="form-select">
+                  <option value="">Semua Ruang</option>
+                  <option value="Co-Working Space A" <?php if($filter_ruang == 'Co-Working Space A') echo 'selected'; ?>>Co-Working Space A</option>
+                  <option value="Co-Working Space B" <?php if($filter_ruang == 'Co-Working Space B') echo 'selected'; ?>>Co-Working Space B</option>
+                  <option value="Co-Working Space C" <?php if($filter_ruang == 'Co-Working Space C') echo 'selected'; ?>>Co-Working Space C</option>
+                  <option value="Co-Working Space D" <?php if($filter_ruang == 'Co-Working Space D') echo 'selected'; ?>>Co-Working Space D</option>
+                  <option value="Co-Working Space E" <?php if($filter_ruang == 'Co-Working Space E') echo 'selected'; ?>>Co-Working Space E</option>
+                  <option value="Co-Working Space F" <?php if($filter_ruang == 'Co-Working Space F') echo 'selected'; ?>>Co-Working Space F</option>
+                  <option value="Co-Working Space Timur" <?php if($filter_ruang == 'Co-Working Space Timur') echo 'selected'; ?>>Co-Working Space Timur</option>
+              </select>
+          </div>
+          <div class="col-md-auto mt-4">
+              <button type="submit" class="btn btn-primary">Filter</button>
+              <a href="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" class="btn btn-secondary">Reset</a>
+          </div>
+      </div>
     </form>
 
     <!-- Tabel untuk menampilkan data reservasi -->
-    <table border="0" cellspacing="0" cellpadding="10">
-        <thead>
-            <tr>
-                <th>Nama</th>
-                <th>Asal</th>
-                <th>Tanggal</th>
-                <th>Waktu Mulai</th>
-                <th>Waktu Selesai</th>
-                <th>Ruang</th>
-                <th>Fakultas</th>
-                <th>Keperluan</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php
-            if ($result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
-                    echo "<tr>
-                        <td>" . htmlspecialchars($row['nama']) . "</td>
-                        <td>" . htmlspecialchars($row['asal']) . "</td>
-                        <td>" . htmlspecialchars($row['tanggal']) . "</td>
-                        <td>" . htmlspecialchars($row['waktu']) . "</td>
-                        <td>" . htmlspecialchars($row['waktu_selesai']) . "</td>
-                        <td>" . htmlspecialchars($row['ruang']) . "</td>
-                        <td>" . htmlspecialchars($row['fakultas']) . "</td>
-                        <td>" . htmlspecialchars($row['keperluan']) . "</td>
-                    </tr>";
-                }
-            } else {
-                echo "<tr><td colspan='8' style='text-align:center;'>Tidak ada data yang ditemukan.</td></tr>";
-            }
-            ?>
-        </tbody>
-    </table>
-      </div>
-    </section><!-- End Tabel Reservasi -->
+    <div class="table-responsive">
+      <table class="table table-striped table-bordered">
+          <thead>
+              <tr>
+                  <th>Nama</th>
+                  <th>Asal</th>
+                  <th>Tanggal</th>
+                  <th>Waktu Mulai</th>
+                  <th>Waktu Selesai</th>
+                  <th>Ruang</th>
+                  <th>Fakultas</th>
+                  <th>Keperluan</th>
+              </tr>
+          </thead>
+          <tbody>
+              <?php
+              if ($result->num_rows > 0) {
+                  while ($row = $result->fetch_assoc()) {
+                      echo "<tr>
+                          <td>" . htmlspecialchars($row['nama']) . "</td>
+                          <td>" . htmlspecialchars($row['asal']) . "</td>
+                          <td>" . htmlspecialchars($row['tanggal']) . "</td>
+                          <td>" . htmlspecialchars($row['waktu']) . "</td>
+                          <td>" . htmlspecialchars($row['waktu_selesai']) . "</td>
+                          <td>" . htmlspecialchars($row['ruang']) . "</td>
+                          <td>" . htmlspecialchars($row['fakultas']) . "</td>
+                          <td>" . htmlspecialchars($row['keperluan']) . "</td>
+                      </tr>";
+                  }
+              } else {
+                  echo "<tr><td colspan='8' style='text-align:center;'>Tidak ada data yang ditemukan.</td></tr>";
+              }
+              ?>
+          </tbody>
+      </table>
+    </div>
+  </div>
+</section><!-- End Tabel Reservasi -->
 
 <!-- ======= Footer ======= -->
   

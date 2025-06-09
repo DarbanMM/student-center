@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 05 Jun 2025 pada 02.49
--- Versi server: 10.4.32-MariaDB
--- Versi PHP: 8.2.12
+-- Generation Time: Jun 09, 2025 at 11:25 AM
+-- Server version: 11.5.2-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,11 +24,10 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Struktur dari tabel `login`
+-- Table structure for table `login`
 --
 
 CREATE TABLE `login` (
-  `id` int(10) NOT NULL,
   `username` varchar(30) NOT NULL,
   `password` varchar(30) NOT NULL,
   `nama` varchar(30) NOT NULL,
@@ -36,37 +35,21 @@ CREATE TABLE `login` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data untuk tabel `login`
+-- Dumping data for table `login`
 --
 
-INSERT INTO `login` (`id`, `username`, `password`, `nama`, `level`) VALUES
-(25, 'admin', 'admin', 'admin', 'admin'),
-(30, '22106050046', 'yusrina', 'YUSRINA MASTURA', 'admin'),
-(31, '22106050083', 'darban', 'DARBAN MAHA MURSYIDI', 'admin'),
-(32, '22106050085', 'akrimna', 'AKRIMNA FAHMA', 'admin'),
-(34, 'mahasiswa', 'mahasiswa', 'Mahasiswa', 'mahasiswa'),
-(63, '22106050046', '123456', 'YUSRINA MASTURA', 'mahasiswa'),
-(64, '22106050083', '123456', 'DARBAN MAHA MURSYIDI', 'mahasiswa'),
-(65, '22106050085', '123456', 'AKRIMNA FAHMA', 'mahasiswa');
+INSERT INTO `login` (`username`, `password`, `nama`, `level`) VALUES
+('admin', 'admin', 'admin', 'admin'),
+('akrimna', 'akrimna', 'AKRIMNA FAHMA', 'admin'),
+('darban', 'darban', 'DARBAN MAHA MURSYIDI', 'admin'),
+('mahasiswa', 'mahasiswa', 'Mahasiswa', 'mahasiswa'),
+('user', 'user', 'usercoba', 'mahasiswa'),
+('yusrina', 'yusrina', 'YUSRINA MASTURA', 'admin');
 
 -- --------------------------------------------------------
 
 --
--- Struktur dari tabel `register`
---
-
-CREATE TABLE `register` (
-  `id` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `username` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `password` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-
--- --------------------------------------------------------
-
---
--- Struktur dari tabel `reservasi`
+-- Table structure for table `reservasi`
 --
 
 CREATE TABLE `reservasi` (
@@ -82,55 +65,42 @@ CREATE TABLE `reservasi` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data untuk tabel `reservasi`
+-- Dumping data for table `reservasi`
 --
 
 INSERT INTO `reservasi` (`id`, `nama`, `asal`, `fakultas`, `keperluan`, `ruang`, `tanggal`, `waktu`, `waktu_selesai`) VALUES
-(22, 'Mahasiswa', 'Umum', 'Adab dan Ilmu Budaya', 'Belajar kelompok', 'Co-Working Space A', '2025-01-02', '18:20:00', '19:18:00');
+(22, 'Mahasiswa', 'Umum', 'Adab dan Ilmu Budaya', 'Belajar kelompok', 'Co-Working Space A', '2025-01-02', '18:20:00', '19:18:00'),
+(24, 'Mahasiswa', 'HMPS', 'Adab dan Ilmu Budaya', 'Rapat Bulanan', 'Co-Working Space A', '2025-06-09', '16:00:00', '16:30:00'),
+(25, 'Mahasiswa', 'hmps', 'Adab dan Ilmu Budaya', 'Belajar kelompok', 'Co-Working Space A', '2025-06-09', '16:30:00', '17:00:00'),
+(26, 'Mahasiswa', 'Umum', 'Dakwah dan Komunikasi', 'Pengajuan Pemberian Penghargaan Prestasi Mahasiswa UIN Sunan Kalijaga 2024', 'Co-Working Space B', '2025-06-09', '16:00:00', '16:30:00'),
+(27, 'Mahasiswa', 'INFORMATIKA', 'Dakwah dan Komunikasi', 'Diskusi pembuatan aplikasi untuk SC', 'Co-Working Space B', '2025-06-09', '17:00:00', '17:30:00'),
+(28, 'Mahasiswa', 'HMPS', 'Syari\'ah dan Hukum', 'makan', 'Co-Working Space B', '2025-06-10', '18:02:00', '20:02:00');
 
 --
 -- Indexes for dumped tables
 --
 
 --
--- Indeks untuk tabel `login`
+-- Indexes for table `login`
 --
 ALTER TABLE `login`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`username`);
 
 --
--- Indeks untuk tabel `register`
---
-ALTER TABLE `register`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indeks untuk tabel `reservasi`
+-- Indexes for table `reservasi`
 --
 ALTER TABLE `reservasi`
   ADD PRIMARY KEY (`id`);
 
 --
--- AUTO_INCREMENT untuk tabel yang dibuang
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT untuk tabel `login`
---
-ALTER TABLE `login`
-  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
-
---
--- AUTO_INCREMENT untuk tabel `register`
---
-ALTER TABLE `register`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT untuk tabel `reservasi`
+-- AUTO_INCREMENT for table `reservasi`
 --
 ALTER TABLE `reservasi`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
